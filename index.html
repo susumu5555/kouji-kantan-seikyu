@@ -125,7 +125,7 @@ async function startProtectedApp(){
    data=normalizeData(JSON.parse(new TextDecoder().decode(plain)));storageKey=key;
   }else{
    if(activeCfg){if(!constantTimeEqual(await passwordVerifier(pw,unb64(activeCfg.salt),activeCfg.iterations),activeCfg.verifier))throw Error('パスワードが違います。');}
-   else {if(pw.length<12)throw Error('パスワードは4文字以上にしてください。');if(pw!==pw2)throw Error('確認用パスワードが一致しません。');const salt=randomBytes(16);activeCfg={salt:b64(salt),verifier:await passwordVerifier(pw,salt,BACKUP_ITERATIONS),iterations:BACKUP_ITERATIONS};localStorage.setItem('koujiBackupPasswordConfig',JSON.stringify(activeCfg));}
+   else {if(pw.length<4)throw Error('パスワードは4文字以上にしてください。');if(pw!==pw2)throw Error('確認用パスワードが一致しません。');const salt=randomBytes(16);activeCfg={salt:b64(salt),verifier:await passwordVerifier(pw,salt,BACKUP_ITERATIONS),iterations:BACKUP_ITERATIONS};localStorage.setItem('koujiBackupPasswordConfig',JSON.stringify(activeCfg));}
    data=normalizeData(legacy?JSON.parse(legacy):null);storageKey=await deriveAesKey(pw,unb64(activeCfg.salt),activeCfg.iterations);
    await persist();
   }
