@@ -306,7 +306,7 @@ async function listDropboxArchiveCandidates(){
  let result=await dropboxApi('files/list_folder',{path:DROPBOX_FOLDER,recursive:false,include_deleted:false,include_mounted_folders:false,include_non_downloadable_files:false});
  let entries=result.entries||[];
  while(result.has_more){result=await dropboxApi('files/list_folder/continue',{cursor:result.cursor});entries=entries.concat(result.entries||[])}
- const cutoff=new Date();cutoff.setMonth(cutoff.getMonth()-1);
+ const cutoff=new Date();const day=cutoff.getDate();cutoff.setDate(1);cutoff.setMonth(cutoff.getMonth()-1);const lastDay=new Date(cutoff.getFullYear(),cutoff.getMonth()+1,0).getDate();cutoff.setDate(Math.min(day,lastDay));
  const files=entries.filter(x=>x['.tag']==='file');
  const candidates=files.filter(x=>x.server_modified&&new Date(x.server_modified)<cutoff);
  const unknown=files.filter(x=>!x.server_modified);
@@ -315,7 +315,7 @@ async function listDropboxArchiveCandidates(){
 function zcrc(b){let c=0xffffffff;for(let i=0;i<b.length;i++){c^=b[i];for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0)}return(c^0xffffffff)>>>0}
 function z16(n){return new Uint8Array([n&255,n>>>8&255])}function z32(n){return new Uint8Array([n&255,n>>>8&255,n>>>16&255,n>>>24&255])}
 function zjoin(a){let o=new Uint8Array(a.reduce((s,x)=>s+x.length,0)),p=0;for(const x of a){o.set(x,p);p+=x.length}return o}
-function makeZip(fs){let loc=[],cen=[],off=0,te=new TextEncoder();for(const f of fs){let n=te.encode(f.name),d=f.bytes,c=zcrc(d),lh=zjoin([z32(0x04034b50),z16(20),z16(0),z16(0),z16(0),z16(33),z32(c),z32(d.length),z32(d.length),z16(n.length),z16(0),n]);loc.push(lh,d);let ch=zjoin([z32(0x02014b50),z16(20),z16(20),z16(0),z16(0),z16(0),z16(33),z32(c),z32(d.length),z32(d.length),z16(n.length),z16(0),z16(0),z16(0),z16(0),z32(0),z32(off),n]);cen.push(ch);off+=lh.length+d.length}let cd=zjoin(cen),end=zjoin([z32(0x06054b50),z16(0),z16(0),z16(fs.length),z16(fs.length),z32(cd.length),z32(off),z16(0)]);return new Blob([zjoin(loc),cd,end],{type:'application/zip'})}
+function makeZip(fs){let loc=[],cen=[],off=0,te=new TextEncoder();for(const f of fs){let n=te.encode(f.name),d=f.bytes,c=zcrc(d),lh=zjoin([z32(0x04034b50),z16(20),z16(0x0800),z16(0),z16(0),z16(33),z32(c),z32(d.length),z32(d.length),z16(n.length),z16(0),n]);loc.push(lh,d);let ch=zjoin([z32(0x02014b50),z16(20),z16(20),z16(0x0800),z16(0),z16(0),z16(33),z32(c),z32(d.length),z32(d.length),z16(n.length),z16(0),z16(0),z16(0),z16(0),z32(0),z32(off),n]);cen.push(ch);off+=lh.length+d.length}let cd=zjoin(cen),end=zjoin([z32(0x06054b50),z16(0),z16(0),z16(fs.length),z16(fs.length),z32(cd.length),z32(off),z16(0)]);return new Blob([zjoin(loc),cd,end],{type:'application/zip'})}
 async function getDropboxFile(e){let r=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{Authorization:'Bearer '+getDropboxAccessToken(),'Dropbox-API-Arg':JSON.stringify({path:e.id})}});if(!r.ok)throw Error(e.name+'の取得に失敗（'+r.status+'）');return new Uint8Array(await r.arrayBuffer())}
 async function archiveCandidates(es){let fs=[];for(let i=0;i<es.length;i++){ $('dropboxStatus').textContent='ZIP作成中 '+(i+1)+'/'+es.length;fs.push({name:es[i].name,bytes:await getDropboxFile(es[i])})}return makeZip(fs)}
 async function deleteCandidates(es){for(let i=0;i<es.length;i++){ $('dropboxStatus').textContent='Dropbox削除中 '+(i+1)+'/'+es.length;await dropboxApi('files/delete_v2',{path:es[i].id})}}
