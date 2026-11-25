@@ -410,6 +410,19 @@ async function initializeDropboxConnection(){
  }catch(e){$('dropboxStatus').textContent='Dropbox接続を確認できません：'+e.message}
 }
 
+function commitPasswordMigration(config,encrypted){
+ const previous={config:localStorage.getItem('koujiBackupPasswordConfig'),encrypted:localStorage.getItem('koujiAppDataEncrypted'),legacy:localStorage.getItem('koujiAppData')};
+ const restore=(key,value)=>{if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value)};
+ try{
+  localStorage.setItem('koujiBackupPasswordConfig',JSON.stringify(config));
+  localStorage.setItem('koujiAppDataEncrypted',JSON.stringify(encrypted));
+  localStorage.removeItem('koujiAppData');
+ }catch(saveError){
+  try{restore('koujiBackupPasswordConfig',previous.config);restore('koujiAppDataEncrypted',previous.encrypted);restore('koujiAppData',previous.legacy);}
+  catch(restoreError){throw Error('パスワード移行の保存に失敗し、元データの復元にも失敗しました。アプリを閉じず、保存領域を確認してください。保存エラー：'+saveError.message+'／復元エラー：'+restoreError.message)}
+  throw Error('パスワード移行の保存に失敗したため、変更前の状態に戻しました：'+saveError.message);
+ }
+}
 async function startProtectedApp(){
  const encrypted=localStorage.getItem('koujiAppDataEncrypted'),cfg=getPasswordConfig(),legacy=localStorage.getItem('koujiAppData');
  const title=$('lockTitle'),msg=$('lockMessage'),confirmWrap=$('lockConfirmWrap'),btn=$('unlockButton');
@@ -435,8 +448,7 @@ async function startProtectedApp(){
     const salt=randomBytes(16),iv=randomBytes(12),newKey=await deriveAesKey(next,salt,BACKUP_ITERATIONS);
     const verifier=await passwordVerifier(next,salt,BACKUP_ITERATIONS);
     const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},newKey,new TextEncoder().encode(JSON.stringify(data)));
-    localStorage.setItem('koujiBackupPasswordConfig',JSON.stringify({salt:b64(salt),verifier,iterations:BACKUP_ITERATIONS}));
-    localStorage.setItem('koujiAppDataEncrypted',JSON.stringify({format:'KOUJI-LOCAL-1',cipher:'AES-256-GCM',salt:b64(salt),iv:b64(iv),ciphertext:b64(cipher)}));
+    commitPasswordMigration({salt:b64(salt),verifier,iterations:BACKUP_ITERATIONS},{format:'KOUJI-LOCAL-1',cipher:'AES-256-GCM',salt:b64(salt),iv:b64(iv),ciphertext:b64(cipher)});
     storageKey=newKey;
     alert('パスワードを8文字以上に変更し、保存データを再暗号化しました。次回から新しいパスワードを使ってください。');
    }
@@ -455,8 +467,7 @@ async function startProtectedApp(){
     const salt=randomBytes(16),iv=randomBytes(12),newKey=await deriveAesKey(next,salt,BACKUP_ITERATIONS);
     const verifier=await passwordVerifier(next,salt,BACKUP_ITERATIONS);
     const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},newKey,new TextEncoder().encode(JSON.stringify(data)));
-    localStorage.setItem('koujiBackupPasswordConfig',JSON.stringify({salt:b64(salt),verifier,iterations:BACKUP_ITERATIONS}));
-    localStorage.setItem('koujiAppDataEncrypted',JSON.stringify({format:'KOUJI-LOCAL-1',cipher:'AES-256-GCM',salt:b64(salt),iv:b64(iv),ciphertext:b64(cipher)}));
+    commitPasswordMigration({salt:b64(salt),verifier,iterations:BACKUP_ITERATIONS},{format:'KOUJI-LOCAL-1',cipher:'AES-256-GCM',salt:b64(salt),iv:b64(iv),ciphertext:b64(cipher)});
     storageKey=newKey;
     alert('パスワードを8文字以上に変更し、保存データを再暗号化しました。次回から新しいパスワードを使ってください。');
    }else await persist();
