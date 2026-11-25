@@ -372,9 +372,11 @@ async function listDropboxArchiveCandidates(){
  while(result.has_more){result=await dropboxApi('files/list_folder/continue',{cursor:result.cursor});entries=entries.concat(result.entries||[])}
  const cutoff=new Date();const day=cutoff.getDate();cutoff.setDate(1);cutoff.setMonth(cutoff.getMonth()-1);const lastDay=new Date(cutoff.getFullYear(),cutoff.getMonth()+1,0).getDate();cutoff.setDate(Math.min(day,lastDay));
  const files=entries.filter(x=>x['.tag']==='file');
- const candidates=files.filter(x=>x.server_modified&&new Date(x.server_modified)<cutoff);
- const unknown=files.filter(x=>!x.server_modified);
- return {files,candidates,unknown,cutoff};
+ const syncPathLower=(DROPBOX_SYNC_FILE||'').toLowerCase();
+ const archiveFiles=files.filter(x=>(x.path_lower||'').toLowerCase()!==syncPathLower);
+ const candidates=archiveFiles.filter(x=>x.server_modified&&new Date(x.server_modified)<cutoff);
+ const unknown=archiveFiles.filter(x=>!x.server_modified);
+ return {files:archiveFiles,candidates,unknown,cutoff};
 }
 function zcrc(b){let c=0xffffffff;for(let i=0;i<b.length;i++){c^=b[i];for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0)}return(c^0xffffffff)>>>0}
 function z16(n){return new Uint8Array([n&255,n>>>8&255])}function z32(n){return new Uint8Array([n&255,n>>>8&255,n>>>16&255,n>>>24&255])}
