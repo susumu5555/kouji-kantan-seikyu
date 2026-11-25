@@ -91,7 +91,7 @@ let data=load();let cart=[];let activeJob=null;let selectedCorporationId='';
 function normalizeData(d){d=d||{items:defaultItems,settings:{tax:10,company:'',companyAddress:'',companyPhone:'',companyEmail:'',invoiceNumber:''},jobs:[]};d.items=d.items||defaultItems;d.settings=d.settings||{tax:10,company:'',companyAddress:'',companyPhone:'',companyEmail:'',invoiceNumber:''};d.settings.companyEmail=d.settings.companyEmail||'';d.settings.invoiceNumber=d.settings.invoiceNumber||'';d.jobs=d.jobs||[];d.corporations=d.corporations||[];d.jobs.forEach(j=>{let c=j.customer;if(c&&c.type==='法人'&&c.name&&!d.corporations.some(x=>x.name===c.name&&x.address===c.address)){d.corporations.push({id:'corp_'+(j.id||Date.now()),...c})}});return d}
 function load(){let d;try{d=JSON.parse(localStorage.getItem('koujiAppData'))}catch(e){}return normalizeData(d)}
 let storageKey=null,persistQueue=Promise.resolve();
-function persist(){if(!storageKey)throw new Error('データ保護のロックが解除されていません');const snapshot=JSON.stringify(data);persistQueue=persistQueue.then(async()=>{const iv=randomBytes(12),cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},storageKey,new TextEncoder().encode(snapshot));localStorage.setItem('koujiAppDataEncrypted',JSON.stringify({format:'KOUJI-LOCAL-1',cipher:'AES-256-GCM',salt:getPasswordConfig().salt,iv:b64(iv),ciphertext:b64(cipher)}));localStorage.removeItem('koujiAppData')});return persistQueue}
+function persist(){if(!storageKey)throw new Error('データ保護のロックが解除されていません');const snapshot=JSON.stringify(data);persistQueue=persistQueue.catch(()=>{}).then(async()=>{const iv=randomBytes(12),cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},storageKey,new TextEncoder().encode(snapshot));localStorage.setItem('koujiAppDataEncrypted',JSON.stringify({format:'KOUJI-LOCAL-1',cipher:'AES-256-GCM',salt:getPasswordConfig().salt,iv:b64(iv),ciphertext:b64(cipher)}));localStorage.removeItem('koujiAppData')});return persistQueue}
 const $=id=>document.getElementById(id);const yen=n=>(Number(n)||0).toLocaleString('ja-JP')+'円';const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function tab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===name));if(name==='history')renderHistory();if(name==='items')renderManage()}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
@@ -359,8 +359,9 @@ async function downloadDropboxSync(){
  const downloaded=await dropboxContentDownload(DROPBOX_SYNC_FILE);
  const payload=await decryptDropboxSyncPackage(await downloaded.blob.text(),password);
  if(!confirm('現在の端末の工事データをDropboxのデータで置き換えます。実行前に、現在の端末データの暗号化バックアップを作成してください。続行しますか？'))return;
- data=normalizeData(payload.data);
- await persist();
+ const previousData=data,previousEncrypted=localStorage.getItem('koujiAppDataEncrypted'),previousLegacy=localStorage.getItem('koujiAppData');
+ try{data=normalizeData(payload.data);await persist();}
+ catch(saveError){data=previousData;try{if(previousEncrypted===null)localStorage.removeItem('koujiAppDataEncrypted');else localStorage.setItem('koujiAppDataEncrypted',previousEncrypted);if(previousLegacy===null)localStorage.removeItem('koujiAppData');else localStorage.setItem('koujiAppData',previousLegacy);}catch(restoreError){throw Error('端末保存に失敗し、保存領域の復元にも失敗しました。アプリを閉じず、端末データを確認してください。元のエラー：'+saveError.message+'／復元エラー：'+restoreError.message)}throw Error('端末への保存に失敗したため、取得前のデータに戻しました：'+saveError.message)}
  loadSettings();renderCatalog();renderCart();renderCorporations();renderManage();renderHistory();
  localStorage.setItem(DROPBOX_SYNC_REV_KEY,current.rev);
  $('dropboxStatus').textContent='Dropboxの暗号化同期データを取得しました（'+new Date().toLocaleString('ja-JP')+'）';
