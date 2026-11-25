@@ -339,6 +339,7 @@ async function uploadDropboxSync(){
  const current=await dropboxGetSyncMetadata(),known=localStorage.getItem(DROPBOX_SYNC_REV_KEY);
  if(current&&(!known||known!==current.rev))throw Error('Dropbox側に別の同期データ、または他端末の更新があります。上書き防止のため、先に「Dropboxから取得」を実行してください。');
  if(!current&&known)throw Error('Dropbox側の同期ファイルが見つかりません。削除・移動された可能性があるため、上書き保存を中止しました。');
+ if(current){const existing=await dropboxContentDownload(DROPBOX_SYNC_FILE);await decryptDropboxSyncPackage(await existing.blob.text(),password);}
  const content=await makeDropboxSyncPackage(password);
  const arg={path:DROPBOX_SYNC_FILE,mode:current?{'.tag':'update',update:current.rev}:{'.tag':'add'},autorename:false,mute:true};
  const response=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+getDropboxAccessToken(),'Dropbox-API-Arg':JSON.stringify(arg),'Content-Type':'application/octet-stream'},body:content});
