@@ -65,8 +65,8 @@ body.app-locked header,body.app-locked .wrap{visibility:hidden}
 </style></head>
 <body class="app-locked">
 <div id="lockScreen"><div class="lock-card"><h2 id="lockTitle">データ保護の設定</h2>
-<p id="lockMessage">保存データを暗号化します。4文字以上のパスワードを設定してください。忘れると復元できません。</p>
-<label id="lockPasswordLabel" for="lockPassword">パスワード</label><input id="lockPassword" type="password" autocomplete="current-password" placeholder="4文字以上">
+<p id="lockMessage">保存データを暗号化します。8文字以上のパスワードを設定してください。忘れると復元できません。</p>
+<label id="lockPasswordLabel" for="lockPassword">パスワード</label><input id="lockPassword" type="password" autocomplete="current-password" placeholder="8文字以上">
 <div id="lockConfirmWrap"><label for="lockPasswordConfirm">パスワード（確認）</label><input id="lockPasswordConfirm" type="password" autocomplete="new-password" placeholder="同じパスワードを再入力"></div>
 <button class="btn full" id="unlockButton">暗号化して開始</button><p id="lockError" role="alert" style="color:#b42318"></p></div></div>
 <header><h1>工事かんたん請求</h1><small>追加工事の選択・請求書・領収書</small></header>
@@ -247,7 +247,7 @@ async function passwordVerifier(password,salt,iterations){let material=await cry
 function constantTimeEqual(a,b){if(typeof a!=='string'||typeof b!=='string'||a.length!==b.length)return false;let x=0;for(let i=0;i<a.length;i++)x|=a.charCodeAt(i)^b.charCodeAt(i);return x===0}
 function getPasswordConfig(){try{return JSON.parse(localStorage.getItem('koujiBackupPasswordConfig')||'null')}catch(e){return null}}
 function updatePasswordStatus(){let c=getPasswordConfig();$('backupPasswordStatus').textContent=c?'この端末にはパスワード確認情報が登録済みです。別端末では暗号化バックアップの読み込み時に同じパスワードを入力してください。':'パスワード未設定'}
-$('setBackupPassword').onclick=async()=>{let p=$('backupPassword').value,p2=$('backupPassword2').value;if(p.length<4){alert('安全のため4文字以上のパスワードを設定してください');return}if(p!==p2){alert('確認用パスワードが一致しません');return}try{let salt=randomBytes(16),verifier=await passwordVerifier(p,salt,BACKUP_ITERATIONS),key=await deriveAesKey(p,salt,BACKUP_ITERATIONS),iv=randomBytes(12),cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(data)));localStorage.setItem('koujiBackupPasswordConfig',JSON.stringify({salt:b64(salt),verifier,iterations:BACKUP_ITERATIONS}));localStorage.setItem('koujiAppDataEncrypted',JSON.stringify({format:'KOUJI-LOCAL-1',cipher:'AES-256-GCM',salt:b64(salt),iv:b64(iv),ciphertext:b64(cipher)}));localStorage.removeItem('koujiAppData');storageKey=key;$('backupPassword').value=$('backupPassword2').value='';updatePasswordStatus();alert('保存データの暗号化パスワードを更新しました。次回起動時から新しいパスワードが必要です。')}catch(e){alert('パスワードを更新できませんでした：'+e.message)}};
+$('setBackupPassword').onclick=async()=>{let p=$('backupPassword').value,p2=$('backupPassword2').value;if(p.length<8){alert('安全のため8文字以上のパスワードを設定してください');return}if(p!==p2){alert('確認用パスワードが一致しません');return}try{let salt=randomBytes(16),verifier=await passwordVerifier(p,salt,BACKUP_ITERATIONS),key=await deriveAesKey(p,salt,BACKUP_ITERATIONS),iv=randomBytes(12),cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(data)));localStorage.setItem('koujiBackupPasswordConfig',JSON.stringify({salt:b64(salt),verifier,iterations:BACKUP_ITERATIONS}));localStorage.setItem('koujiAppDataEncrypted',JSON.stringify({format:'KOUJI-LOCAL-1',cipher:'AES-256-GCM',salt:b64(salt),iv:b64(iv),ciphertext:b64(cipher)}));localStorage.removeItem('koujiAppData');storageKey=key;$('backupPassword').value=$('backupPassword2').value='';updatePasswordStatus();alert('保存データの暗号化パスワードを更新しました。次回起動時から新しいパスワードが必要です。')}catch(e){alert('パスワードを更新できませんでした：'+e.message)}};
 async function makeEncryptedBackup(){
  if(!crypto?.subtle)throw Error('暗号化機能が使えません。HTTPS対応のブラウザで開いてください。');
  const cfg=getPasswordConfig();
@@ -414,7 +414,7 @@ async function startProtectedApp(){
  const title=$('lockTitle'),msg=$('lockMessage'),confirmWrap=$('lockConfirmWrap'),btn=$('unlockButton');
  if(encrypted){title.textContent='アプリのロック解除';msg.textContent='保存データは暗号化されています。設定したパスワードを入力してください。';confirmWrap.style.display='none';btn.textContent='ロックを解除';$('lockPasswordLabel').textContent='パスワード';}
  else if(cfg){title.textContent='保存データを暗号化';msg.textContent='既存データを暗号化します。以前にバックアップ用パスワードを設定した場合は同じパスワードを入力してください。';confirmWrap.style.display='none';btn.textContent='暗号化して開始';$('lockPasswordLabel').textContent='登録済みパスワード';}
- else {title.textContent='データ保護の設定';msg.textContent='このアプリの保存データを暗号化します。4文字以上のパスワードを設定してください。忘れると復元できません。';confirmWrap.style.display='block';btn.textContent='暗号化して開始';$('lockPasswordLabel').textContent='新しいパスワード';}
+ else {title.textContent='データ保護の設定';msg.textContent='このアプリの保存データを暗号化します。8文字以上のパスワードを設定してください。忘れると復元できません。';confirmWrap.style.display='block';btn.textContent='暗号化して開始';$('lockPasswordLabel').textContent='新しいパスワード';}
  btn.onclick=async()=>{const pw=$('lockPassword').value,pw2=$('lockPasswordConfirm').value;$('lockError').textContent='';try{
   if(!crypto?.subtle)throw Error('暗号化機能を使えません。HTTPSで開いてください。');
   let activeCfg=cfg;
@@ -423,9 +423,25 @@ async function startProtectedApp(){
    if(!constantTimeEqual(await passwordVerifier(pw,unb64(activeCfg.salt),activeCfg.iterations),activeCfg.verifier))throw Error('パスワードが違います。');
    const enc=JSON.parse(encrypted),key=await deriveAesKey(pw,unb64(enc.salt||activeCfg.salt),activeCfg.iterations),plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(enc.iv)},key,unb64(enc.ciphertext));
    data=normalizeData(JSON.parse(new TextDecoder().decode(plain)));storageKey=key;
+   if(pw.length<8){
+    alert('現在のパスワードは8文字未満です。安全のため、新しい8文字以上のパスワードへ変更してください。');
+    const next=prompt('新しいパスワードを入力してください（8文字以上）。キャンセルするとアプリは開きません。');
+    if(next===null)throw Error('パスワード変更をキャンセルしました。');
+    if(next.length<8)throw Error('新しいパスワードは8文字以上にしてください。');
+    const again=prompt('確認のため、新しいパスワードをもう一度入力してください。');
+    if(again===null)throw Error('パスワード変更をキャンセルしました。');
+    if(next!==again)throw Error('新しいパスワードが一致しません。もう一度ロック解除してください。');
+    const salt=randomBytes(16),iv=randomBytes(12),newKey=await deriveAesKey(next,salt,BACKUP_ITERATIONS);
+    const verifier=await passwordVerifier(next,salt,BACKUP_ITERATIONS);
+    const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},newKey,new TextEncoder().encode(JSON.stringify(data)));
+    localStorage.setItem('koujiBackupPasswordConfig',JSON.stringify({salt:b64(salt),verifier,iterations:BACKUP_ITERATIONS}));
+    localStorage.setItem('koujiAppDataEncrypted',JSON.stringify({format:'KOUJI-LOCAL-1',cipher:'AES-256-GCM',salt:b64(salt),iv:b64(iv),ciphertext:b64(cipher)}));
+    storageKey=newKey;
+    alert('パスワードを8文字以上に変更し、保存データを再暗号化しました。次回から新しいパスワードを使ってください。');
+   }
   }else{
    if(activeCfg){if(!constantTimeEqual(await passwordVerifier(pw,unb64(activeCfg.salt),activeCfg.iterations),activeCfg.verifier))throw Error('パスワードが違います。');}
-   else {if(pw.length<4)throw Error('パスワードは4文字以上にしてください。');if(pw!==pw2)throw Error('確認用パスワードが一致しません。');const salt=randomBytes(16);activeCfg={salt:b64(salt),verifier:await passwordVerifier(pw,salt,BACKUP_ITERATIONS),iterations:BACKUP_ITERATIONS};localStorage.setItem('koujiBackupPasswordConfig',JSON.stringify(activeCfg));}
+   else {if(pw.length<8)throw Error('パスワードは8文字以上にしてください。');if(pw!==pw2)throw Error('確認用パスワードが一致しません。');const salt=randomBytes(16);activeCfg={salt:b64(salt),verifier:await passwordVerifier(pw,salt,BACKUP_ITERATIONS),iterations:BACKUP_ITERATIONS};localStorage.setItem('koujiBackupPasswordConfig',JSON.stringify(activeCfg));}
    data=normalizeData(legacy?JSON.parse(legacy):null);storageKey=await deriveAesKey(pw,unb64(activeCfg.salt),activeCfg.iterations);
    await persist();
   }
