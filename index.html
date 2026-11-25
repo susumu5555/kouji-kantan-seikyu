@@ -80,7 +80,7 @@ body.app-locked header,body.app-locked .wrap{visibility:hidden}
 </section>
 <section id="history" class="panel"><div class="card"><h2>工事履歴</h2><div class="hint">保存した工事から、見積書・請求書・領収書の3種類をPDFで作成できます。領収書は入金済みの工事のみ発行できます。</div><div id="historyList" class="empty">まだ保存された工事はありません。</div></div></section>
 <section id="items" class="panel"><div class="card"><h2>追加工事項目・料金の編集</h2><div class="field"><label>カテゴリー</label><input id="newCat" placeholder="例：配管関係"></div><div class="field"><label>工事項目名</label><input id="newItem" placeholder="例：配管延長"></div><div class="field"><label>税抜単価（円）</label><input id="newPrice" type="number" min="0" placeholder="金額未確定なら空欄"></div><button class="btn full" id="addItem">項目を追加</button><div id="manageItems"></div></div></section>
-<section id="settings" class="panel"><div class="card"><h2>会社情報・税率</h2><div class="field"><label>会社名</label><input id="company" placeholder="会社名"></div><div class="field"><label>住所</label><input id="companyAddress" placeholder="会社住所"></div><div class="field"><label>電話番号</label><input id="companyPhone" placeholder="電話番号"></div><div class="field"><label>メールアドレス</label><input id="companyEmail" type="email" placeholder="会社メールアドレス"></div><div class="field"><label>インボイス登録番号</label><input id="invoiceNumber" placeholder="Tから始まる登録番号"></div><div class="field"><label>消費税率（％）</label><input id="taxRate" type="number" min="0" max="100" step="0.1" value="10"></div><button class="btn full" id="saveSettings">設定を保存</button></div><div class="card"><h2>暗号化バックアップ・復元</h2><p class="hint">データは端末内のブラウザに保存します。スマホとPCは自動同期せず、暗号化したバックアップファイルを使って手動で移します。初回に共通パスワードを設定してください。パスワードそのものはアプリに保存しません。</p><div class="field"><label>共通バックアップパスワード（4文字以上を推奨）</label><input id="backupPassword" type="password" autocomplete="new-password" placeholder="初回設定するパスワード"></div><div class="field"><label>パスワード確認</label><input id="backupPassword2" type="password" autocomplete="new-password" placeholder="同じパスワードを再入力"></div><button class="btn secondary full" id="setBackupPassword">この端末にパスワード確認情報を登録</button><p id="backupPasswordStatus" class="hint">パスワード未設定</p><div class="actions"><button class="btn" id="backup">暗号化バックアップを書き出す</button><button class="btn secondary" id="emailBackup">メールに添付して送る</button></div><div class="actions" style="margin-top:8px"><button class="btn gray" id="restoreBtn">バックアップを読み込む</button><input id="restoreFile" type="file" accept=".kbackup,.json,application/json" class="hidden"></div><p class="hint">メール添付は端末の共有メニューを開きます。メールアプリを選び、宛先を確認して送信してください。共有メニューに対応しない場合はファイルを保存し、メールに手動添付します。クラウドへ保存する場合も暗号化ファイルだけを保存してください。</p><div class="notice">パスワードを忘れると復元できません。パスワードはバックアップファイルとは別の安全な場所に保管してください。暗号化バックアップには法人情報・工事履歴・設定・項目情報が含まれます。</div></div><div class="card"><h2>Dropbox同期・整理</h2><p class="hint">Dropboxの同期フォルダを確認します。削除対象は実行日から1か月より前のファイルです。日時が不明なファイルは削除対象にしません。</p><p id="dropboxStatus" class="hint">未接続</p><button class="btn full" id="dropboxConnect">Dropboxに接続</button><button class="btn secondary full" id="dropboxRefresh" style="margin-top:8px">ファイル一覧を再確認</button><div id="dropboxArchivePreview" class="hint"></div><p class="hint">対象フォルダ：工事かんたん請求_同期</p><div class="notice">ZIP保存と削除機能を準備中です。削除対象は同期フォルダ内のファイル（サブフォルダ内を含む）です。削除前にZIPを保存し、保存確認と最終確認が必要です。</div></div><div class="notice">初期の工事項目は一般的な候補です。価格・工事内容・税区分は実際の会社ルールに合わせて確認してからご利用ください。</div></section>
+<section id="settings" class="panel"><div class="card"><h2>会社情報・税率</h2><div class="field"><label>会社名</label><input id="company" placeholder="会社名"></div><div class="field"><label>住所</label><input id="companyAddress" placeholder="会社住所"></div><div class="field"><label>電話番号</label><input id="companyPhone" placeholder="電話番号"></div><div class="field"><label>メールアドレス</label><input id="companyEmail" type="email" placeholder="会社メールアドレス"></div><div class="field"><label>インボイス登録番号</label><input id="invoiceNumber" placeholder="Tから始まる登録番号"></div><div class="field"><label>消費税率（％）</label><input id="taxRate" type="number" min="0" max="100" step="0.1" value="10"></div><button class="btn full" id="saveSettings">設定を保存</button></div><div class="card"><h2>暗号化バックアップ・復元</h2><p class="hint">データは端末内のブラウザに保存します。スマホとPCは自動同期せず、暗号化したバックアップファイルを使って手動で移します。初回に共通パスワードを設定してください。パスワードそのものはアプリに保存しません。</p><div class="field"><label>共通バックアップパスワード（4文字以上を推奨）</label><input id="backupPassword" type="password" autocomplete="new-password" placeholder="初回設定するパスワード"></div><div class="field"><label>パスワード確認</label><input id="backupPassword2" type="password" autocomplete="new-password" placeholder="同じパスワードを再入力"></div><button class="btn secondary full" id="setBackupPassword">この端末にパスワード確認情報を登録</button><p id="backupPasswordStatus" class="hint">パスワード未設定</p><div class="actions"><button class="btn" id="backup">暗号化バックアップを書き出す</button><button class="btn secondary" id="emailBackup">メールに添付して送る</button></div><div class="actions" style="margin-top:8px"><button class="btn gray" id="restoreBtn">バックアップを読み込む</button><input id="restoreFile" type="file" accept=".kbackup,.json,application/json" class="hidden"></div><p class="hint">メール添付は端末の共有メニューを開きます。メールアプリを選び、宛先を確認して送信してください。共有メニューに対応しない場合はファイルを保存し、メールに手動添付します。クラウドへ保存する場合も暗号化ファイルだけを保存してください。</p><div class="notice">パスワードを忘れると復元できません。パスワードはバックアップファイルとは別の安全な場所に保管してください。暗号化バックアップには法人情報・工事履歴・設定・項目情報が含まれます。</div></div><div class="card"><h2>Dropbox同期・整理</h2><p class="hint">Dropboxの同期フォルダを確認します。削除対象は実行日から1か月より前のファイルです。日時が不明なファイルは削除対象にしません。</p><p id="dropboxStatus" class="hint">未接続</p><button class="btn full" id="dropboxConnect">Dropboxに接続</button><button class="btn secondary full" id="dropboxRefresh" style="margin-top:8px">ファイル一覧を再確認</button><div id="dropboxArchivePreview" class="hint"></div><p class="hint">対象フォルダ：工事かんたん請求_同期</p><div class="actions" style="margin-top:8px"><button class="btn secondary" id="dropboxDownloadSync">Dropboxから取得</button><button class="btn" id="dropboxUploadSync">Dropboxへ保存</button></div><p class="hint">同期データは専用パスワードで暗号化します。パスワードはDropboxにも端末にも保存しません。新しい端末は最初にDropboxから取得してください。</p><div class="notice">ZIP保存と削除機能を準備中です。削除対象は同期フォルダ内のファイル（サブフォルダ内を含む）です。削除前にZIPを保存し、保存確認と最終確認が必要です。</div></div><div class="notice">初期の工事項目は一般的な候補です。価格・工事内容・税区分は実際の会社ルールに合わせて確認してからご利用ください。</div></section>
 <div id="printArea" class="printdoc hidden"></div>
 </div>
 <script>
@@ -302,6 +302,70 @@ async function dropboxApi(path,body){
  const response=await fetch('https://api.dropboxapi.com/2/'+path,{method:'POST',headers:{Authorization:'Bearer '+getDropboxAccessToken(),'Content-Type':'application/json'},body:JSON.stringify(body)});
  const result=await response.json().catch(()=>({}));if(!response.ok)throw Error('Dropbox API '+response.status+'：'+(result.error_summary||'処理に失敗しました'));return result;
 }
+
+const DROPBOX_SYNC_FILE=DROPBOX_FOLDER+'/工事データ.kouji-sync';
+const DROPBOX_SYNC_ITERATIONS=310000;
+const DROPBOX_SYNC_REV_KEY='koujiDropboxSyncRevision';
+async function dropboxContentDownload(path){
+ const r=await fetch('https://content.dropboxapi.com/2/files/download',{method:'POST',headers:{Authorization:'Bearer '+getDropboxAccessToken(),'Dropbox-API-Arg':JSON.stringify({path})}});
+ if(!r.ok){let msg='Dropboxファイル取得失敗（'+r.status+'）';try{const j=await r.json();msg=j.error_summary||msg}catch(e){}throw Error(msg)}
+ return {blob:await r.blob(),metadata:JSON.parse(r.headers.get('Dropbox-API-Result')||'{}')};
+}
+async function dropboxGetSyncMetadata(){
+ try{return await dropboxApi('files/get_metadata',{path:DROPBOX_SYNC_FILE,include_media_info:false,include_deleted:false})}
+ catch(e){if(String(e.message).includes('path/not_found'))return null;throw e}
+}
+async function makeDropboxSyncPackage(password){
+ if(!password||password.length<8)throw Error('同期専用パスワードは8文字以上にしてください');
+ await persistQueue;
+ const salt=randomBytes(16),iv=randomBytes(12),key=await deriveAesKey(password,salt,DROPBOX_SYNC_ITERATIONS);
+ const payload={app:'工事かんたん請求',format:1,exportedAt:new Date().toISOString(),data};
+ const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(payload)));
+ return JSON.stringify({format:'KOUJI-DROPBOX-SYNC-1',cipher:'AES-256-GCM',kdf:'PBKDF2-SHA-256',iterations:DROPBOX_SYNC_ITERATIONS,salt:b64(salt),iv:b64(iv),ciphertext:b64(cipher)});
+}
+async function decryptDropboxSyncPackage(raw,password){
+ const p=JSON.parse(raw);
+ if(p.format!=='KOUJI-DROPBOX-SYNC-1'||p.cipher!=='AES-256-GCM'||p.kdf!=='PBKDF2-SHA-256')throw Error('Dropbox同期ファイルの形式が正しくありません');
+ if(!Number.isInteger(p.iterations)||p.iterations<100000||p.iterations>2000000)throw Error('暗号化設定が不正です');
+ const key=await deriveAesKey(password,unb64(p.salt),p.iterations);
+ const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(p.iv)},key,unb64(p.ciphertext));
+ const payload=JSON.parse(new TextDecoder().decode(plain));
+ if(payload.app!=='工事かんたん請求'||payload.format!==1||!payload.data?.items||!payload.data?.settings||!payload.data?.jobs)throw Error('同期データの内容が正しくありません');
+ return payload;
+}
+async function uploadDropboxSync(){
+ const password=prompt('同期専用パスワードを入力してください。初回は8文字以上の新しいパスワードを設定します。');
+ if(password===null)return;
+ const current=await dropboxGetSyncMetadata(),known=localStorage.getItem(DROPBOX_SYNC_REV_KEY);
+ if(current&&(!known||known!==current.rev))throw Error('Dropbox側に別の同期データ、または他端末の更新があります。上書き防止のため、先に「Dropboxから取得」を実行してください。');
+ if(!current&&known)throw Error('Dropbox側の同期ファイルが見つかりません。削除・移動された可能性があるため、上書き保存を中止しました。');
+ const content=await makeDropboxSyncPackage(password);
+ const arg={path:DROPBOX_SYNC_FILE,mode:current?{'.tag':'update',update:current.rev}:{'.tag':'add'},autorename:false,mute:true};
+ const response=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+getDropboxAccessToken(),'Dropbox-API-Arg':JSON.stringify(arg),'Content-Type':'application/octet-stream'},body:content});
+ const result=await response.json().catch(()=>({}));
+ if(!response.ok)throw Error('Dropbox保存失敗：'+(result.error_summary||response.status));
+ localStorage.setItem(DROPBOX_SYNC_REV_KEY,result.rev);
+ $('dropboxStatus').textContent='暗号化同期データをDropboxに保存しました（'+new Date().toLocaleString('ja-JP')+'）';
+ alert('暗号化した工事データをDropboxに保存しました。');
+}
+async function downloadDropboxSync(){
+ const password=prompt('同期専用パスワードを入力してください。');
+ if(password===null)return;
+ const current=await dropboxGetSyncMetadata();
+ if(!current)throw Error('Dropboxに同期データがありません。先に保存してください。');
+ const downloaded=await dropboxContentDownload(DROPBOX_SYNC_FILE);
+ const payload=await decryptDropboxSyncPackage(await downloaded.blob.text(),password);
+ if(!confirm('現在の端末の工事データをDropboxのデータで置き換えます。実行前に、現在の端末データの暗号化バックアップを作成してください。続行しますか？'))return;
+ data=normalizeData(payload.data);
+ await persist();
+ loadSettings();renderCatalog();renderCart();renderCorporations();renderManage();renderHistory();
+ localStorage.setItem(DROPBOX_SYNC_REV_KEY,current.rev);
+ $('dropboxStatus').textContent='Dropboxの暗号化同期データを取得しました（'+new Date().toLocaleString('ja-JP')+'）';
+ alert('Dropboxのデータをこの端末に反映しました。');
+}
+$('dropboxUploadSync').onclick=async()=>{try{await uploadDropboxSync()}catch(e){alert('Dropbox保存エラー：'+e.message)}};
+$('dropboxDownloadSync').onclick=async()=>{try{await downloadDropboxSync()}catch(e){alert('Dropbox取得エラー：'+e.message)}};
+
 async function listDropboxArchiveCandidates(){
  let result=await dropboxApi('files/list_folder',{path:DROPBOX_FOLDER,recursive:true,include_deleted:false,include_mounted_folders:false,include_non_downloadable_files:false});
  let entries=result.entries||[];
