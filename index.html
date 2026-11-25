@@ -334,12 +334,14 @@ async function decryptDropboxSyncPackage(raw,password){
  return payload;
 }
 async function uploadDropboxSync(){
- const password=prompt('同期専用パスワードを入力してください。初回は8文字以上の新しいパスワードを設定します。');
- if(password===null)return;
  const current=await dropboxGetSyncMetadata(),known=localStorage.getItem(DROPBOX_SYNC_REV_KEY);
  if(current&&(!known||known!==current.rev))throw Error('Dropbox側に別の同期データ、または他端末の更新があります。上書き防止のため、先に「Dropboxから取得」を実行してください。');
  if(!current&&known)throw Error('Dropbox側の同期ファイルが見つかりません。削除・移動された可能性があるため、上書き保存を中止しました。');
- if(current){const existing=await dropboxContentDownload(DROPBOX_SYNC_FILE);await decryptDropboxSyncPackage(await existing.blob.text(),password);}
+ const password=prompt(current?'同期専用パスワードを入力してください。':'初回の同期専用パスワードを設定してください（8文字以上）。');
+ if(password===null)return;
+ if(!password||password.length<8)throw Error('同期専用パスワードは8文字以上にしてください');
+ if(current){const existing=await dropboxContentDownload(DROPBOX_SYNC_FILE);await decryptDropboxSyncPackage(await existing.blob.text(),password);if(!confirm('Dropbox上の同期データを、現在の端末のデータで更新します。続行しますか？'))return;}
+ else {const again=prompt('確認のため、同じ同期専用パスワードをもう一度入力してください。');if(again===null)return;if(password!==again)throw Error('パスワードが一致しません。Dropboxへの保存を中止しました。');}
  const content=await makeDropboxSyncPackage(password);
  const arg={path:DROPBOX_SYNC_FILE,mode:current?{'.tag':'update',update:current.rev}:{'.tag':'add'},autorename:false,mute:true};
  const response=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+getDropboxAccessToken(),'Dropbox-API-Arg':JSON.stringify(arg),'Content-Type':'application/octet-stream'},body:content});
